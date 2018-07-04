@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Empresa;
-use App\Form\MicroPostType;
+use App\Form\EmpresaType;
 use App\Repository\EmpresaRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -64,5 +64,46 @@ class EmpresaController{
 		]);
 
 		return new Response($html);
+	}
+
+	/**
+	* @Route("/cadastrar-empresa", name="cadastro_empresa")
+	* @Security("is_granted('ROLE_USER')")
+	*/
+	public function cadastrar(Request $request, TokenStorageInterface $tokenStorage){
+
+		// FAZER RELACOES USUARIO-EMPRESA
+		// $user = $tokenStorage->getToken()->getUser();
+
+		$empresa = new Empresa();
+		// $empresa->setCnpj($cnpj);
+		// $empresa->setRazaoSocial($razaoSocial);
+		// $empresa->setNomeFantasia($nomeFantasia);
+		// $empresa->setSituacaoTributaria($situacaoTributaria);
+		// $empresa->setCep($cep);
+		// $empresa->setRua($rua);
+		// $empresa->setNumero($numero);
+		// $empresa->setBairro($Bairro);
+		// $empresa->setCidade($cidade);
+		// $empresa->setUf($uf);
+		// $empresa->setPais($pais);
+		// $empresa->setUser($user);
+
+		$form = $this->formFactory->create(EmpresaType::class, $empresa);
+		$form->handleRequest($request);
+
+		if ($form->isSubmitted() && $form->isValid()){
+			$this->entityManager->persist($empresa);
+			$this->entityManager->flush();
+
+			return new RedirectResponse($this->router->generate('index'));
+		}
+
+		return new Response(
+			$this->twig->render(
+				'empresa/cadastro.html.twig',
+				['form' => $form->createView()]
+		)
+		);
 	}
 }
