@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Empresas Cadastradas{% endblock %}
+
+{% block body %}
+
+	<table class="table">
+		<tr>
+			<th>CNPJ</th>
+			<th>Razão Social</th>
+			<th>Nome Fantasia</th>
+			<th>Sit. Tributária</th>
+			<th>UF</th>
+			<th>Cidade</th>
+			<th>CEP</th>
+		</tr>
+	{% for empresa in empresas %}
+		<tr>
+			<td>{{ empresa.cnpj }}</td>
+			<td>{{ empresa.razaoSocial }}</td>
+			<td>{{ empresa.nomeFantasia }}</td>
+			<td>{{ empresa.situacaoTributaria }}</td>
+			<td>{{ empresa.uf }}</td>
+			<td>{{ empresa.cidade }}</td>
+			<td>{{ empresa.cep }}</td>
+		</tr>
+	{% endfor %}
+	</table>
+
+{% endblock %}
