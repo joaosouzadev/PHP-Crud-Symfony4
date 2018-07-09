@@ -67,6 +67,33 @@ class EmpresaController{
 	}
 
 	/**
+	* @Route("/edit/{id}", name="editar_empresa")
+	*/
+	public function edit(Empresa $empresa, Request $request){
+
+		// $this->denyUnlessGranted('edit', $microPost); outro jeito de validar autorização, caso a classe extenda Controller
+		// if (!$this->authorizationChecker->isGranted('edit', $empresa)) {
+		// 	throw new UnauthorizedHttpException("Acesso Negado");
+		// }
+
+		$form = $this->formFactory->create(EmpresaType::class, $empresa);
+		$form->handleRequest($request);
+
+		if ($form->isSubmitted() && $form->isValid()){
+			$this->entityManager->flush();
+
+			return new RedirectResponse($this->router->generate('index'));
+		}
+
+		return new Response(
+			$this->twig->render(
+				'empresa/cadastro.html.twig',
+				['form' => $form->createView()]
+		)
+		);
+	}
+
+	/**
 	* @Route("/cadastrar-empresa", name="cadastro_empresa")
 	* @Security("is_granted('ROLE_USER')")
 	*/
