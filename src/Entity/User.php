@@ -64,7 +64,13 @@ class User implements UserInterface, \Serializable
      */
     private $roles;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Empresa", mappedBy="user")
+     */
+    private $empresas;
+
     public function __construct() {
+        $this->empresas = new ArrayCollection();
     }
 
     public function getId()

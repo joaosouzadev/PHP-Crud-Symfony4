@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\ManyToOne;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\EmpresaRepository")
@@ -70,6 +71,12 @@ class Empresa
      * @ORM\Column(type="string", length=20)
      */
     private $pais;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="empresas")
+     * @ORM\JoinColumn()
+     */
+    private $user;
 
     public function getId(): ?int
     {
@@ -204,6 +211,18 @@ class Empresa
     public function setPais(string $pais): self
     {
         $this->pais = $pais;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
 
         return $this;
     }

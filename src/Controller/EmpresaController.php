@@ -58,10 +58,12 @@ class EmpresaController{
 	/**
 	* @Route("/", name="index")
 	*/
-	public function index(){
+	public function index(TokenStorageInterface $tokenStorage){
+
+		$user = $tokenStorage->getToken()->getUser();
 
 		$html = $this->twig->render('empresa/index.html.twig', [
-			'empresas' => $this->empresaRepository->findAll(),
+			'empresas' => $this->empresaRepository->findBy(array('user' => $user)),
 		]);
 
 		return new Response($html);
@@ -101,7 +103,7 @@ class EmpresaController{
 	public function cadastrar(Request $request, TokenStorageInterface $tokenStorage){
 
 		// FAZER RELACOES USUARIO-EMPRESA
-		// $user = $tokenStorage->getToken()->getUser();
+		$user = $tokenStorage->getToken()->getUser();
 
 		$empresa = new Empresa();
 		// $empresa->setCnpj($cnpj);
@@ -115,7 +117,7 @@ class EmpresaController{
 		// $empresa->setCidade($cidade);
 		// $empresa->setUf($uf);
 		// $empresa->setPais($pais);
-		// $empresa->setUser($user);
+		$empresa->setUser($user);
 
 		$form = $this->formFactory->create(EmpresaType::class, $empresa);
 		$form->handleRequest($request);
