@@ -134,18 +134,4 @@ class EmpresaController{
 		)
 		);
 	}
-
-	/**
-	* @Route("/{id}", name="empresa_empresa")
-	*/
-	public function empresa(Empresa $empresa) {
-		return new Response(
-			$this->twig->render(
-				'empresa/index.html.twig',
-				[
-					'empresa' => $empresa
-				]
-			)
-		);
-	}
 }
