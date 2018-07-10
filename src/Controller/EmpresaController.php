@@ -59,8 +59,9 @@ class EmpresaController{
 	* @Route("/", name="index")
 	*/
 	public function index(){
+
 		$html = $this->twig->render('empresa/index.html.twig', [
-			'empresas' => $this->empresaRepository->findAll()
+			'empresas' => $this->empresaRepository->findAll(),
 		]);
 
 		return new Response($html);
@@ -131,6 +132,20 @@ class EmpresaController{
 				'empresa/cadastro.html.twig',
 				['form' => $form->createView()]
 		)
+		);
+	}
+
+	/**
+	* @Route("/{id}", name="empresa_empresa")
+	*/
+	public function empresa(Empresa $empresa) {
+		return new Response(
+			$this->twig->render(
+				'empresa/index.html.twig',
+				[
+					'empresa' => $empresa
+				]
+			)
 		);
 	}
 }
