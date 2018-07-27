@@ -15,6 +15,7 @@ class ProdutoType extends AbstractType {
 	public function buildForm(FormBuilderInterface $builder, array $options){
 
 		$builder->add('nome', TextType::class)
+			->add('empresa')
 			->add('Register', SubmitType::class, ['label' => 'Cadastrar Produto']);
 	}
 

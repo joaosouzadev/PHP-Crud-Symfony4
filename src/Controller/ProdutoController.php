@@ -81,22 +81,23 @@ class ProdutoController extends AbstractController {
 		$user = $tokenStorage->getToken()->getUser();
 
 		$produto = new Produto();
+		$empresa = 
 
 		$form = $this->formFactory->create(ProdutoType::class, $produto);
-		$form->add('empresa', EntityType::class, [
-                'class' => Empresa::class,
-                'choice_label' => 'razaoSocial',
-                'choice_value' => 'id',
-                'label' => 'Company:',
-                'choices' => $user->getEmpresas()
-            ]);
+		// $form->add('empresa', EntityType::class, [
+  //               'class' => Empresa::class,
+  //               'choice_label' => 'razaoSocial',
+  //               'choice_value' => 'id',
+  //               'label' => 'Company:',
+  //               'choices' => $user->getEmpresas()
+  //           ]);
 		$form->handleRequest($request);
 
 		if ($form->isSubmitted() && $form->isValid()){
 			$this->entityManager->persist($produto);
 			$this->entityManager->flush();
 
-			return new RedirectResponse($this->router->generate('index'));
+			return new RedirectResponse($this->router->generate('produtos'));
 		}
 
 		return new Response(
