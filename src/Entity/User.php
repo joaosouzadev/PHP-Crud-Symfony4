@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -178,5 +179,36 @@ class User implements UserInterface, \Serializable
 
     public function getPosts(){
         return $this->posts;
+    }
+
+    /**
+     * @return Collection|Empresa[]
+     */
+    public function getEmpresas(): Collection
+    {
+        return $this->empresas;
+    }
+
+    public function addEmpresa(Empresa $empresa): self
+    {
+        if (!$this->empresas->contains($empresa)) {
+            $this->empresas[] = $empresa;
+            $empresa->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEmpresa(Empresa $empresa): self
+    {
+        if ($this->empresas->contains($empresa)) {
+            $this->empresas->removeElement($empresa);
+            // set the owning side to null (unless already changed)
+            if ($empresa->getUser() === $this) {
+                $empresa->setUser(null);
+            }
+        }
+
+        return $this;
     }
 }

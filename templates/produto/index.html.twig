@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Empresas Cadastradas{% endblock %}
+
+	{% block stylesheets %}
+		<style type="text/css">
+			a{
+				color: black;
+				text-decoration: none;
+			}
+
+			a:hover{
+				color: black;
+				text-decoration: none;
+			}
+
+			tr:hover{
+				background-color: #ccc !important; 
+			}
+		</style>
+    {% endblock %}
+
+{% block body %}
+
+	<a href="{{ path('produto_cadastro') }}">Adicionar</a>
+
+	<table id="table" class="table table-striped">
+		<tr>
+			<th>Nome</th>
+			<th>Empresa</th>
+		</tr>
+	{% for produto in produtos %}
+		<tr style="cursor: pointer;">
+			<td>{{ produto.nome }}</td>
+			<td>{{ produto.empresa }}</td>
+		</tr>
+	{% endfor %}
+	</table>
+
+{% endblock %}
+
+{% block javascript %}
+	<script type="text/javascript">
+		$(document).ready(function() {
+		    $('#table tr').click(function() {
+		        var href = $(this).find("a").attr("href");
+		        if(href) {
+		            window.location = href;
+		        }
+		    });
+		});
+	</script>
+{% endblock %}

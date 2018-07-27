@@ -3,8 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Empresa;
-use App\Form\EmpresaType;
-use App\Repository\EmpresaRepository;
+use App\Entity\Produto;
+use App\Form\ProdutoType;
+use App\Repository\ProdutoRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,13 +20,15 @@ use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 
-class EmpresaController extends AbstractController {
+
+class ProdutoController extends AbstractController {
 
 
 	private $twig;
 
-	private $empresaRepository;
+	private $produtoRepository;
 
 	private $formFactory;
 
@@ -39,7 +42,7 @@ class EmpresaController extends AbstractController {
 
 	public function __construct(
 		\Twig_Environment $twig, 
-		EmpresaRepository $empresaRepository, 
+		ProdutoRepository $produtoRepository, 
 		FormFactoryInterface $formFactory, 
 		EntityManagerInterface $entityManager, 
 		RouterInterface $router, 
@@ -48,7 +51,7 @@ class EmpresaController extends AbstractController {
 	){
 
 		$this->twig = $twig;
-		$this->empresaRepository = $empresaRepository;
+		$this->produtoRepository = $produtoRepository;
 		$this->formFactory = $formFactory;
 		$this->entityManager = $entityManager;
 		$this->router = $router;
@@ -57,33 +60,40 @@ class EmpresaController extends AbstractController {
 	}
 
 	/**
-	* @Route("/", name="index")
+	* @Route("/produto", name="produtos")
 	*/
 	public function index(TokenStorageInterface $tokenStorage){
 
 		$user = $tokenStorage->getToken()->getUser();
 
-		$html = $this->twig->render('empresa/index.html.twig', [
-			'empresas' => $this->empresaRepository->findBy(array('user' => $user)),
+		$html = $this->twig->render('produto/index.html.twig', [
+			'produtos' => $this->produtoRepository->findByEmpresa($user->getEmpresas()),
 		]);
 
 		return new Response($html);
 	}
 
 	/**
-	* @Route("/edit/{id}", name="editar_empresa")
+	* @Route("/cadastro", name="produto_cadastro")
 	*/
-	public function edit(Empresa $empresa, Request $request){
+	public function cadastrar(Request $request, TokenStorageInterface $tokenStorage){
 
-		// $this->denyUnlessGranted('edit', $microPost); outro jeito de validar autorização, caso a classe extenda Controller
-		// if (!$this->authorizationChecker->isGranted('edit', $empresa)) {
-		// 	throw new UnauthorizedHttpException("Acesso Negado");
-		// }
+		$user = $tokenStorage->getToken()->getUser();
 
-		$form = $this->formFactory->create(EmpresaType::class, $empresa);
+		$produto = new Produto();
+
+		$form = $this->formFactory->create(ProdutoType::class, $produto);
+		$form->add('empresa', EntityType::class, [
+                'class' => Empresa::class,
+                'choice_label' => 'razaoSocial',
+                'choice_value' => 'id',
+                'label' => 'Company:',
+                'choices' => $user->getEmpresas()
+            ]);
 		$form->handleRequest($request);
 
 		if ($form->isSubmitted() && $form->isValid()){
+			$this->entityManager->persist($produto);
 			$this->entityManager->flush();
 
 			return new RedirectResponse($this->router->generate('index'));
@@ -91,40 +101,28 @@ class EmpresaController extends AbstractController {
 
 		return new Response(
 			$this->twig->render(
-				'empresa/cadastro.html.twig',
+				'produto/cadastro.html.twig',
 				['form' => $form->createView()]
 		)
 		);
 	}
 
+
+
 	/**
-	* @Route("/cadastrar-empresa", name="cadastro_empresa")
-	* @Security("is_granted('ROLE_USER')")
+	* @Route("/edit/{id}", name="produto_editar")
 	*/
-	public function cadastrar(Request $request, TokenStorageInterface $tokenStorage){
+	public function edit(Produto $produto, Request $request){
 
-		// FAZER RELACOES USUARIO-EMPRESA
-		$user = $tokenStorage->getToken()->getUser();
+		// $this->denyUnlessGranted('edit', $microPost); outro jeito de validar autorização, caso a classe extenda Controller
+		// if (!$this->authorizationChecker->isGranted('edit', $produto)) {
+		// 	throw new UnauthorizedHttpException("Acesso Negado");
+		// }
 
-		$empresa = new Empresa();
-		// $empresa->setCnpj($cnpj);
-		// $empresa->setRazaoSocial($razaoSocial);
-		// $empresa->setNomeFantasia($nomeFantasia);
-		// $empresa->setSituacaoTributaria($situacaoTributaria);
-		// $empresa->setCep($cep);
-		// $empresa->setRua($rua);
-		// $empresa->setNumero($numero);
-		// $empresa->setBairro($Bairro);
-		// $empresa->setCidade($cidade);
-		// $empresa->setUf($uf);
-		// $empresa->setPais($pais);
-		$empresa->setUser($user);
-
-		$form = $this->formFactory->create(EmpresaType::class, $empresa);
+		$form = $this->formFactory->create(ProdutoType::class, $produto);
 		$form->handleRequest($request);
 
 		if ($form->isSubmitted() && $form->isValid()){
-			$this->entityManager->persist($empresa);
 			$this->entityManager->flush();
 
 			return new RedirectResponse($this->router->generate('index'));
@@ -132,7 +130,7 @@ class EmpresaController extends AbstractController {
 
 		return new Response(
 			$this->twig->render(
-				'empresa/cadastro.html.twig',
+				'produto/cadastro.html.twig',
 				['form' => $form->createView()]
 		)
 		);
