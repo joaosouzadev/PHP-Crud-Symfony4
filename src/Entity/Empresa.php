@@ -86,7 +86,7 @@ class Empresa
     private $produtos;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Produto", mappedBy="empresa")
+     * @ORM\OneToMany(targetEntity="App\Entity\Vendedor", mappedBy="empresa")
      */
     private $vendedores;
 

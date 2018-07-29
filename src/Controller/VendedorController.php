@@ -60,14 +60,15 @@ class VendedorController extends AbstractController {
 	}
 
 	/**
-	* @Route("/vendedor", name="vendedores")
+	* @Route("/vendedor", name="vendedor_index")
 	*/
 	public function index(TokenStorageInterface $tokenStorage){
 
+		$session = $this->get('session');
 		$user = $tokenStorage->getToken()->getUser();
 
 		$html = $this->twig->render('vendedor/index.html.twig', [
-			'vendedores' => $this->vendedorRepository->findByEmpresa($user->getEmpresas()),
+			'vendedores' => $this->vendedorRepository->findByEmpresa($session->get('empresa')),
 		]);
 
 		return new Response($html);
@@ -78,25 +79,23 @@ class VendedorController extends AbstractController {
 	*/
 	public function cadastrar(Request $request, TokenStorageInterface $tokenStorage){
 
+		$session = $this->get('session');
 		$user = $tokenStorage->getToken()->getUser();
 
+		$repository = $this->getDoctrine()->getRepository(Empresa::class);
+
 		$vendedor = new Vendedor();
+		$empresa = $repository->find($session->get('empresa'));
 
 		$form = $this->formFactory->create(VendedorType::class, $vendedor);
-		$form->add('empresa', EntityType::class, [
-                'class' => Empresa::class,
-                'choice_label' => 'razaoSocial',
-                'choice_value' => 'id',
-                'label' => 'Company:',
-                'choices' => $user->getEmpresas()
-            ]);
 		$form->handleRequest($request);
 
 		if ($form->isSubmitted() && $form->isValid()){
+			$vendedor->setEmpresa($empresa);
 			$this->entityManager->persist($vendedor);
 			$this->entityManager->flush();
 
-			return new RedirectResponse($this->router->generate('index'));
+			return new RedirectResponse($this->router->generate('vendedor_index'));
 		}
 
 		return new Response(

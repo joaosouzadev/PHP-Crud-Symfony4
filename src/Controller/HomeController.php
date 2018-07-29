@@ -23,7 +23,7 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
-class EmpresaController extends AbstractController {
+class HomeController extends AbstractController {
 
 
 	private $twig;
@@ -60,7 +60,7 @@ class EmpresaController extends AbstractController {
 	}
 
 	/**
-	* @Route("/empresa", name="empresa_index")
+	* @Route("/", name="index")
 	*/
 	public function index(Request $request, TokenStorageInterface $tokenStorage){
 
@@ -71,67 +71,25 @@ class EmpresaController extends AbstractController {
 
 		$empresas = $user->getEmpresas();
 
-	    return $this->render('empresa/index.html.twig',
-	    	[
-	    		'empresas' => $this->empresaRepository->findBy(array('user' => $user)),
-	    	]
-	    );
-	}
+		$form = $this->createFormBuilder()
+        ->add('empresa', EntityType::class, [
+                'class' => Empresa::class,
+                'choice_label' => 'razaoSocial',
+                'label' => 'Empresa:',
+                'choices' => $user->getEmpresas()
+            ])
+        ->add('selecionar', SubmitType::class, ['label' => 'Selecionar'])
+        ->getForm();
 
-	/**
-	* @Route("/edit/{id}", name="editar_empresa")
-	*/
-	public function edit(Empresa $empresa, Request $request){
+	    $form->handleRequest($request);
 
-		// $this->denyUnlessGranted('edit', $microPost); outro jeito de validar autorização, caso a classe extenda Controller
-		// if (!$this->authorizationChecker->isGranted('edit', $empresa)) {
-		// 	throw new UnauthorizedHttpException("Acesso Negado");
-		// }
+	    if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+            $session->set('empresa', $data['empresa']->getId());
+            return $this->redirectToRoute('index');
+        }
 
-		$form = $this->formFactory->create(EmpresaType::class, $empresa);
-		$form->handleRequest($request);
-
-		if ($form->isSubmitted() && $form->isValid()){
-			$this->entityManager->flush();
-
-			return new RedirectResponse($this->router->generate('index'));
-		}
-
-		return new Response(
-			$this->twig->render(
-				'empresa/cadastro.html.twig',
-				['form' => $form->createView()]
-		)
-		);
-	}
-
-	/**
-	* @Route("/cadastrar-empresa", name="empresa_cadastro")
-	* @Security("is_granted('ROLE_USER')")
-	*/
-	public function cadastrar(Request $request, TokenStorageInterface $tokenStorage){
-
-		// FAZER RELACOES USUARIO-EMPRESA
-		$user = $tokenStorage->getToken()->getUser();
-
-		$empresa = new Empresa();
-		$empresa->setUser($user);
-
-		$form = $this->formFactory->create(EmpresaType::class, $empresa);
-		$form->handleRequest($request);
-
-		if ($form->isSubmitted() && $form->isValid()){
-			$this->entityManager->persist($empresa);
-			$this->entityManager->flush();
-
-			return new RedirectResponse($this->router->generate('empresa_index'));
-		}
-
-		return new Response(
-			$this->twig->render(
-				'empresa/cadastro.html.twig',
-				['form' => $form->createView()]
-		)
-		);
+	    return $this->render('home/index.html.twig', [
+	    	'form' => $form->createView()]);
 	}
 }

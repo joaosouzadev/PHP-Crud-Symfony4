@@ -17,8 +17,10 @@
     <div class="w-100 order-1 order-md-0" style="margin-left: 200px;">
         <ul class="navbar-nav px-3">
             {% if is_granted('ROLE_USER') %}
+                <div>{{ render(controller('App\\Controller\\EmpresaSelecionadaController::empresaSelecionada')) }}</div>
+
                 <li class="nav-item text-nowrap">
-                    <a class="nav-link" href="{{ path('cadastro_empresa') }}">Adicionar Empresa</a>
+                    <a class="nav-link" href="{{ path('empresa_index') }}">Empresa</a>
                 </li>
 
                 <li class="nav-item text-nowrap">
@@ -26,13 +28,11 @@
                 </li>
 
                 <li class="nav-item text-nowrap">
-                    <a class="nav-link" href="{{ path('vendedores') }}">Vendedores</a>
+                    <a class="nav-link" href="{{ path('vendedor_index') }}">Vendedores</a>
                 </li>
             {% endif %}
         </ul>
     </div>
-
-    <div>{{ render(controller('App\\Controller\\EmpresaMasterController::listaEmpresas')) }}</div>
 
     <div class="order-2 order-md-1">
         <ul class="navbar-nav px-3" style="margin-right: 400px;">
@@ -61,7 +61,6 @@
 </nav>
 
 <main role="main" class="container">
-    <button id="empresa-id">Empresa ID</button>
     <div class="my-3 p-3 bg-white rounded box-shadow">
         {% block body %}
         {% endblock %}

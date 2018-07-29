@@ -64,10 +64,11 @@ class ProdutoController extends AbstractController {
 	*/
 	public function index(TokenStorageInterface $tokenStorage){
 
+		$session = $this->get('session');
 		$user = $tokenStorage->getToken()->getUser();
 
 		$html = $this->twig->render('produto/index.html.twig', [
-			'produtos' => $this->produtoRepository->findByEmpresa($user->getEmpresas()),
+			'produtos' => $this->produtoRepository->findByEmpresa($session->get('empresa')),
 		]);
 
 		return new Response($html);
@@ -78,22 +79,21 @@ class ProdutoController extends AbstractController {
 	*/
 	public function cadastrar(Request $request, TokenStorageInterface $tokenStorage){
 
+		$session = $this->get('session');
+    	dump($session->get('empresa'));
+
+    	$repository = $this->getDoctrine()->getRepository(Empresa::class);
+
 		$user = $tokenStorage->getToken()->getUser();
 
 		$produto = new Produto();
-		$empresa = 
+		$empresa = $repository->find($session->get('empresa'));
 
 		$form = $this->formFactory->create(ProdutoType::class, $produto);
-		// $form->add('empresa', EntityType::class, [
-  //               'class' => Empresa::class,
-  //               'choice_label' => 'razaoSocial',
-  //               'choice_value' => 'id',
-  //               'label' => 'Company:',
-  //               'choices' => $user->getEmpresas()
-  //           ]);
 		$form->handleRequest($request);
 
 		if ($form->isSubmitted() && $form->isValid()){
+			$produto->setEmpresa($empresa);
 			$this->entityManager->persist($produto);
 			$this->entityManager->flush();
 
@@ -111,7 +111,7 @@ class ProdutoController extends AbstractController {
 
 
 	/**
-	* @Route("/edit/{id}", name="produto_editar")
+	* @Route("/produto/edit/{id}", name="produto_editar")
 	*/
 	public function edit(Produto $produto, Request $request){
 
@@ -126,7 +126,7 @@ class ProdutoController extends AbstractController {
 		if ($form->isSubmitted() && $form->isValid()){
 			$this->entityManager->flush();
 
-			return new RedirectResponse($this->router->generate('index'));
+			return new RedirectResponse($this->router->generate('produto_index'));
 		}
 
 		return new Response(

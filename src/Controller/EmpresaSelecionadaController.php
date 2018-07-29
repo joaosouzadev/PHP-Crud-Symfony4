@@ -1,5 +1,4 @@
 <?php 
-
 namespace App\Controller;
 
 use App\Entity\Empresa;
@@ -9,10 +8,9 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
-class EmpresaMasterController extends Controller {
+class EmpresaSelecionadaController extends Controller {
 
 	private $userRepository;
-
 	private $entityManager;
 
 	public function __construct(
@@ -23,13 +21,22 @@ class EmpresaMasterController extends Controller {
 		$this->entityManager = $entityManager;
 	}
 
-	public function listaEmpresas(TokenStorageInterface $tokenStorage) {
-		$user = $tokenStorage->getToken()->getUser();
+	public function EmpresaSelecionada() {
 
-		$empresas = $user->getEmpresas();
+		$session = $this->get('session');
+
+    	$repository = $this->getDoctrine()->getRepository(Empresa::class);
+
+    	$empresa = $session->get('empresa');
+
+		if ($empresa === null) {
+			$empresa = '';
+		} else {
+			$empresa = $repository->find($session->get('empresa'));
+		}
 
 		return $this->render(
-			'produto/dropdown.html.twig', ['listaEmpresas' => $empresas]
+			'empresa/selecionada.html.twig', ['empresaSelecionada' => $empresa]
 		);
 	}
 }

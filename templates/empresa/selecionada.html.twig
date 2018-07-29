@@ -1,0 +1,5 @@
+a{% if empresaSelecionada == null %}
+	<a class="text-nowrap nav-link" href="{{ path('index') }}">Selecionar Empresa</a>
+{% else %}
+	<p style="color: white">Empresa Selecionada: {{ empresaSelecionada.razaoSocial }}</p>
+{% endif %}

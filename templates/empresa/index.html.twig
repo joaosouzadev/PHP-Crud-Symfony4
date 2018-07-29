@@ -22,6 +22,8 @@
 
 {% block body %}
 
+	<a class="nav-link btn btn-outline-primary" href="{{ path('empresa_cadastro') }}" style="width: 15%; margin: 20px">Adicionar Empresa</a>
+
 	<table id="table" class="table table-striped">
 		<tr>
 			<th>#</th>
@@ -50,6 +52,23 @@
 {% endblock %}
 
 {% block javascript %}
+	// <script>
+	//     var empresa = document.getElementById("empresa").value;
+
+	//     $("form").submit(function(e) {
+	//     	e.preventDefault();
+	//     	e.stopPropagation();
+	//         $.ajax({
+	//             type: "POST",
+	//             url: "{{ path('index') }}",
+	//             data: {'empresa':empresa},
+	//             success:function(data){
+	//                     console.log(empresa);
+	//             }
+	//         })
+	//     });
+	// </script>
+
 	<script type="text/javascript">
 		$(document).ready(function() {
 		    $('#table tr').click(function() {

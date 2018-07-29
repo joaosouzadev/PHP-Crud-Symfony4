@@ -20,12 +20,12 @@ class VendedorRepository extends ServiceEntityRepository
         parent::__construct($registry, Vendedor::class);
     }
 
-    public function findByEmpresa(Collection $empresas) {
+    public function findByEmpresa($id) {
 
         $querybuilder = $this->createQueryBuilder('e');
         return $querybuilder->select('e')
             ->where('e.empresa IN (:empresa)')
-            ->setParameter('empresa', $empresas)
+            ->setParameter('empresa', $id)
             ->getQuery()
             ->getResult();
     }

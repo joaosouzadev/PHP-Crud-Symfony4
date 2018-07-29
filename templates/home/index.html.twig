@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Empresas Cadastradas{% endblock %}
+{% block title %}Bem Vindo { app.user.name }{% endblock %}
 
 	{% block stylesheets %}
 		<style type="text/css">
@@ -21,25 +21,29 @@
     {% endblock %}
 
 {% block body %}
+	{{ form_start(form) }}
 
-	<a class="nav-link btn btn-outline-primary" href="{{ path('produto_cadastro') }}" style="width: 15%; margin: 20px">Adicionar Produto</a>
-
-	<table id="table" class="table table-striped">
-		<tr>
-			<th>Nome</th>
-			<th>Empresa</th>
-		</tr>
-	{% for produto in produtos %}
-		<tr style="cursor: pointer;">
-			<td>{{ produto.nome }}</td>
-			<td>{{ produto.empresa }}</td>
-		</tr>
-	{% endfor %}
-	</table>
-
+	{{ form_end(form) }}
 {% endblock %}
 
 {% block javascript %}
+	// <script>
+	//     var empresa = document.getElementById("empresa").value;
+
+	//     $("form").submit(function(e) {
+	//     	e.preventDefault();
+	//     	e.stopPropagation();
+	//         $.ajax({
+	//             type: "POST",
+	//             url: "{{ path('index') }}",
+	//             data: {'empresa':empresa},
+	//             success:function(data){
+	//                     console.log(empresa);
+	//             }
+	//         })
+	//     });
+	// </script>
+
 	<script type="text/javascript">
 		$(document).ready(function() {
 		    $('#table tr').click(function() {

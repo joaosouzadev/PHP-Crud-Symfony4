@@ -177,10 +177,6 @@ class User implements UserInterface, \Serializable
             $this->plainPassword = $plainPassword;
     }
 
-    public function getPosts(){
-        return $this->posts;
-    }
-
     /**
      * @return Collection|Empresa[]
      */

@@ -20,12 +20,22 @@ class ProdutoRepository extends ServiceEntityRepository
         parent::__construct($registry, Produto::class);
     }
 
-    public function findByEmpresa(Collection $empresas) {
+    // public function findByEmpresa(Collection $empresas) {
+
+    //     $querybuilder = $this->createQueryBuilder('e');
+    //     return $querybuilder->select('e')
+    //         ->where('e.empresa IN (:empresa)')
+    //         ->setParameter('empresa', $empresas)
+    //         ->getQuery()
+    //         ->getResult();
+    // }
+
+    public function findByEmpresa($id) {
 
         $querybuilder = $this->createQueryBuilder('e');
         return $querybuilder->select('e')
             ->where('e.empresa IN (:empresa)')
-            ->setParameter('empresa', $empresas)
+            ->setParameter('empresa', $id)
             ->getQuery()
             ->getResult();
     }
