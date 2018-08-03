@@ -7,9 +7,9 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\ProdutoRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\PedidoRepository")
  */
-class Produto
+class Pedido
 {
     /**
      * @ORM\Id()
@@ -19,18 +19,13 @@ class Produto
     private $id;
 
     /**
-     * @ORM\Column(type="string")
-     */
-    private $nome;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Empresa", inversedBy="produtos")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Vendedor", inversedBy="pedido")
      * @ORM\JoinColumn()
      */
-    private $empresa;
+    private $vendedor;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\PedidoItem", mappedBy="produto")
+     * @ORM\OneToMany(targetEntity="App\Entity\PedidoItem", mappedBy="pedido", cascade={"persist"})
      */
     private $pedidoItens;
 
@@ -44,26 +39,14 @@ class Produto
         return $this->id;
     }
 
-    public function getNome(): ?string
+    public function getVendedor(): ?Vendedor
     {
-        return $this->nome;
+        return $this->vendedor;
     }
 
-    public function setNome(string $nome): self
+    public function setVendedor(?Vendedor $vendedor): self
     {
-        $this->nome = $nome;
-
-        return $this;
-    }
-
-    public function getEmpresa(): ?Empresa
-    {
-        return $this->empresa;
-    }
-
-    public function setEmpresa(?Empresa $empresa): self
-    {
-        $this->empresa = $empresa;
+        $this->vendedor = $vendedor;
 
         return $this;
     }
@@ -80,7 +63,7 @@ class Produto
     {
         if (!$this->pedidoItens->contains($pedidoIten)) {
             $this->pedidoItens[] = $pedidoIten;
-            $pedidoIten->setProduto($this);
+            $pedidoIten->setPedido($this);
         }
 
         return $this;
@@ -91,8 +74,8 @@ class Produto
         if ($this->pedidoItens->contains($pedidoIten)) {
             $this->pedidoItens->removeElement($pedidoIten);
             // set the owning side to null (unless already changed)
-            if ($pedidoIten->getProduto() === $this) {
-                $pedidoIten->setProduto(null);
+            if ($pedidoIten->getPedido() === $this) {
+                $pedidoIten->setPedido(null);
             }
         }
 

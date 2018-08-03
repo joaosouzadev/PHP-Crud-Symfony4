@@ -3,8 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\Empresa;
+use App\Entity\Pedido;
 use App\Entity\Produto;
+use App\Entity\PedidoItem;
 use App\Form\ProdutoType;
+use App\Form\PedidoType;
 use App\Repository\ProdutoRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -21,7 +24,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-
 
 class ProdutoController extends AbstractController {
 
@@ -126,12 +128,44 @@ class ProdutoController extends AbstractController {
 		if ($form->isSubmitted() && $form->isValid()){
 			$this->entityManager->flush();
 
-			return new RedirectResponse($this->router->generate('produto_index'));
+			return new RedirectResponse($this->router->generate('produtos'));
 		}
 
 		return new Response(
 			$this->twig->render(
 				'produto/cadastro.html.twig',
+				['form' => $form->createView()]
+		)
+		);
+	}
+
+	/**
+	* @Route("/pedido", name="produto_pedido")
+	*/
+	public function pedido(Request $request){
+
+		// $this->denyUnlessGranted('edit', $microPost); outro jeito de validar autorização, caso a classe extenda Controller
+		// if (!$this->authorizationChecker->isGranted('edit', $produto)) {
+		// 	throw new UnauthorizedHttpException("Acesso Negado");
+		// }
+
+		$pedido = new Pedido();
+		$pedidoItens = new PedidoItem();
+
+		$form = $this->formFactory->create(PedidoType::class, $pedido);
+		$form->handleRequest($request);
+
+		if ($form->isSubmitted() && $form->isValid()){
+			$this->entityManager->persist($pedido);
+			$this->entityManager->persist($pedidoItens);
+			$this->entityManager->flush();
+
+			return new RedirectResponse($this->router->generate('produtos'));
+		}
+
+		return new Response(
+			$this->twig->render(
+				'produto/pedido.html.twig',
 				['form' => $form->createView()]
 		)
 		);

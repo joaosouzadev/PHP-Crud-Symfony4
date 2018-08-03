@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -26,6 +28,16 @@ class Vendedor
      * @ORM\JoinColumn()
      */
     private $empresa;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Pedido", mappedBy="vendedor")
+     */
+    private $pedido;
+
+    public function __construct()
+    {
+        $this->pedido = new ArrayCollection();
+    }
 
     public function getId()
     {
@@ -52,6 +64,37 @@ class Vendedor
     public function setEmpresa(?Empresa $empresa): self
     {
         $this->empresa = $empresa;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Pedido[]
+     */
+    public function getPedido(): Collection
+    {
+        return $this->pedido;
+    }
+
+    public function addPedido(Pedido $pedido): self
+    {
+        if (!$this->pedido->contains($pedido)) {
+            $this->pedido[] = $pedido;
+            $pedido->setVendedor($this);
+        }
+
+        return $this;
+    }
+
+    public function removePedido(Pedido $pedido): self
+    {
+        if ($this->pedido->contains($pedido)) {
+            $this->pedido->removeElement($pedido);
+            // set the owning side to null (unless already changed)
+            if ($pedido->getVendedor() === $this) {
+                $pedido->setVendedor(null);
+            }
+        }
 
         return $this;
     }

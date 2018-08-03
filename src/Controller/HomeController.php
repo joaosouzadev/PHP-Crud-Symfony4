@@ -69,8 +69,6 @@ class HomeController extends AbstractController {
 
 		$user = $tokenStorage->getToken()->getUser();
 
-		$empresas = $user->getEmpresas();
-
 		$form = $this->createFormBuilder()
         ->add('empresa', EntityType::class, [
                 'class' => Empresa::class,
@@ -86,7 +84,7 @@ class HomeController extends AbstractController {
 	    if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
             $session->set('empresa', $data['empresa']->getId());
-            return $this->redirectToRoute('index');
+            return $this->redirectToRoute('empresa_index');
         }
 
 	    return $this->render('home/index.html.twig', [

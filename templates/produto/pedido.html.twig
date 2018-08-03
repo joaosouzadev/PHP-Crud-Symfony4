@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Adicionar Pedido!{% endblock %}
+
+{% block body %}
+
+	{% form_theme form 'produto/prototype.html.twig' %}
+
+	{{ form(form) }}
+
+	{{ form_end(form) }}
+
+{% endblock %}
+
+{% block javascript %}
+    <script src="{{ asset('js/jquery.collection.js') }}"></script>
+
+    <script type="text/javascript">
+        $('.my-selector').collection();
+    </script>
+    <script type="text/javascript">
+
+        $('.discount-collection').collection({
+            allow_duplicate: false,
+            allow_up: false,
+            allow_down: false,
+            add: '<a href="#" class="btn btn-default" title="Add element"><i class="fas fa-plus"></i></a>',
+
+            // here is the magic!
+            elements_selector: 'tr.item',
+            elements_parent_selector: '%id% tbody'
+        });
+
+    </script>
+{% endblock %}
