@@ -24,6 +24,13 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\Encoder\XmlEncoder;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ProdutoController extends AbstractController {
 
@@ -149,18 +156,36 @@ class ProdutoController extends AbstractController {
 		// 	throw new UnauthorizedHttpException("Acesso Negado");
 		// }
 
+		$session = $this->get('session');
+    	dump($session->get('empresa'));
+
+    	$repository = $this->getDoctrine()->getRepository(Empresa::class);
+		$empresa = $repository->find($session->get('empresa'));
+
 		$pedido = new Pedido();
-		$pedidoItens = new PedidoItem();
 
 		$form = $this->formFactory->create(PedidoType::class, $pedido);
 		$form->handleRequest($request);
 
 		if ($form->isSubmitted() && $form->isValid()){
+			// $pedido->setEmpresa($empresa);
+			$pedido->setVendedor($form->get('vendedor')->getData());
+
+			$valor = 0;
+
+			foreach ($form->get('pedidoItens')->getData() as $itens){
+				$preco = $itens->getProduto()->getPreco();
+				$valor+= $preco * $itens->getQuantidade();
+                $itens->setPedido($pedido);
+                $itens->setPreco($preco);
+                $itens->setQuantidade($itens->getQuantidade());
+            }
+
+            $pedido->setValor($valor);
 			$this->entityManager->persist($pedido);
-			$this->entityManager->persist($pedidoItens);
 			$this->entityManager->flush();
 
-			return new RedirectResponse($this->router->generate('produtos'));
+			return new RedirectResponse($this->router->generate('produto_pedido'));
 		}
 
 		return new Response(
@@ -169,5 +194,43 @@ class ProdutoController extends AbstractController {
 				['form' => $form->createView()]
 		)
 		);
+	}
+
+	/**
+	* @Route("/pedidos/consulta_codigo", name="lancamento_pedidos_consulta-codigo")
+	*/
+	public function PedidoConsultaCodigo(Request $request) {
+		if (! $request->isXmlHttpRequest()) {
+            throw new NotFoundHttpException();
+        }
+
+        $session = $this->get('session');
+    	$empresa = $session->get('empresa');
+
+        $encoders = array(new XmlEncoder(), new JsonEncoder());
+        $normalizer = new ObjectNormalizer();
+        $normalizer->setCircularReferenceLimit(1);
+        // Add Circular reference handler
+        $normalizer->setCircularReferenceHandler(function ($object) {
+            return $object->getId();
+        });
+        $normalizers = array($normalizer);
+
+        $serializer = new Serializer($normalizers, $encoders);
+        
+        // Pega o request do Ajax
+        $cod = $request->query->get('produto_cod');
+
+        // Seta o Repositório e Procura pelo Código vindo do Ajax
+        $repo = $this->getDoctrine()->getRepository(Produto::class);
+        $produtoId = $repo->findByCodigo($cod, $empresa);
+
+        // Pega o produto do array de respostas
+        $produto = $produtoId[0];
+
+        // Passa o content pro JSON
+        $jsonContent = $serializer->serialize($produto, 'json');
+
+        return new Response($jsonContent);
 	}
 }

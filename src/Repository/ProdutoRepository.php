@@ -39,4 +39,26 @@ class ProdutoRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function findByCodigo($cod, $empresa) {
+
+        $querybuilder = $this->createQueryBuilder('p');
+        return $querybuilder->select('p')
+            ->where('p.codigo IN (:codigo)')
+            ->andWhere('p.empresa IN (:empresa)')
+            ->setParameter('codigo', $cod)
+            ->setParameter('empresa', $empresa)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findByNome($produtoNome) {
+
+        $querybuilder = $this->createQueryBuilder('p');
+        return $querybuilder->select('p')
+            ->where('p.nome IN (:nome)')
+            ->setParameter('nome', $produtoNome)
+            ->getQuery()
+            ->getResult();
+    }
 }

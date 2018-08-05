@@ -22,7 +22,7 @@ class PedidoType extends AbstractType {
                 'choice_label' => 'nome',
                 'label' => 'Vendedor:'
             ])
-			->add('pedidoItens', CollectionType::class,  array(
+            ->add('pedidoItens', CollectionType::class,  array(
             'entry_type' => PedidoItemType::class,
             'entry_options' => [
                     'attr' => [
@@ -36,8 +36,8 @@ class PedidoType extends AbstractType {
             'required'     => false,
             'by_reference' => true,
             'delete_empty' => true,
-            'attr' => ['class' => 'table discount-collection'],
-        	))
+            'attr' => ['class' => 'table table-bordered pedido-collection'],
+            ))
 			->add('cadastrar', SubmitType::class, ['label' => 'Cadastrar Pedido']);
 	}
 

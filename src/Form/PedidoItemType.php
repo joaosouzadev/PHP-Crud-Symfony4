@@ -12,17 +12,32 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use App\Form\DataTransformer\IdToProduto;
 
 class PedidoItemType extends AbstractType {
 
+	private $transformer;
+
+    public function __construct(IdToProduto $transformer)
+    {
+        $this->transformer = $transformer;
+    }
+
 	public function buildForm(FormBuilderInterface $builder, array $options){
 
-		$builder->add('produto', EntityType::class, [
-                'class' => Produto::class,
-                'choice_label' => 'nome',
-                'label' => 'Produto:'
+		$builder->add('codigo', TextType::class, [
+                'label' => false,
+                'mapped' => false,
             ])
-			->add('quantidade', TextType::class, ['label' => 'Quantidade:']);
+			->add('produto', TextType::class, [
+                'label' => false,
+                'invalid_message' => 'ID inválido',
+            ])
+			->add('quantidade', TextType::class, [
+				'label' => false
+			]);
+
+		$builder->get('produto')->addModelTransformer($this->transformer);
 	}
 
 	public function configureOptions(OptionsResolver $resolver){

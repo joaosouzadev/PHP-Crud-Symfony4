@@ -1,0 +1,88 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Adicionar Pedido!{% endblock %}
+
+{% block body %}
+
+	{{ form_start(form) }}
+
+    {{ form_row(form.vendedor) }}
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>Cód</th>
+                            <th>Descrição</th>
+                            <th>Preço</th>
+                            <th>Quantidade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{ form_widget(form.codigo) }}</td>
+                            <td>{{ form_widget(form.produto) }}</td>
+                            <td id="preco"></td>
+                            <td>{{ form_widget(form.quantidade) }}</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="3" style="text-align: right">Valor Total</th>
+                            <th id="total"></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+	{{ form_end(form) }}
+
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        $(document).ready(function () {
+            // $("table").on("change", "input[name='pedido_codigo']", function(){
+            $("#pedido_codigo").change(function(){
+               var val = $(this).val();
+               $.ajax({
+                    type: "POST",
+                    dataType: 'json',
+                    url: "{{ url('lancamento_pedidos_consulta-codigo') }}?produto_cod=" + val,
+                    success: function(data) {
+                        $('#pedido_produto').val('');
+                        $('#pedido_produto').val(data.nome);
+                        $('#preco').html('');
+                        $('#preco').append(data.preco);
+                        console.log(data.nome);
+                    },
+                    error: function() {
+                        $('#pedido_produto').val('Produto não encontrado');
+                        $('#preco').html('');
+                    }
+                });
+                return false;
+            });
+
+            $("#pedido_quantidade").change(function(){
+               var val = $(this).val();
+               $.ajax({
+                    type: "POST",
+                    dataType: 'json',
+                    url: "{{ url('lancamento_pedidos_consulta-codigo') }}?produto_cod=" + val,
+                    success: function(data) {
+                        $('#pedido_produto').val(data.nome);
+                        $('#preco').append(data.preco);
+                        console.log(data.nome);
+                    }
+                });
+                return false;
+            });
+
+
+        });
+    </script>
+{% endblock %}

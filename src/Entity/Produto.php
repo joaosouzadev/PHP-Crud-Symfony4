@@ -22,6 +22,16 @@ class Produto
      * @ORM\Column(type="string")
      */
     private $nome;
+    
+    /**
+     * @ORM\Column(type="string")
+     */
+    private $codigo;
+
+    /**
+     * @ORM\Column(type="float")
+     */
+    private $preco;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Empresa", inversedBy="produtos")
@@ -95,6 +105,30 @@ class Produto
                 $pedidoIten->setProduto(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getCodigo(): ?string
+    {
+        return $this->codigo;
+    }
+
+    public function setCodigo(string $codigo): self
+    {
+        $this->codigo = $codigo;
+
+        return $this;
+    }
+
+    public function getPreco(): ?float
+    {
+        return $this->preco;
+    }
+
+    public function setPreco(float $preco): self
+    {
+        $this->preco = $preco;
 
         return $this;
     }

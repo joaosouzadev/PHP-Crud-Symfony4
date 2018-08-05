@@ -17,9 +17,14 @@ class PedidoItem
     private $id;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", nullable=true)
      */
     private $quantidade;
+
+    /**
+     * @ORM\Column(type="float", nullable=true)
+     */
+    private $preco;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Produto", inversedBy="pedidoItens")
@@ -70,6 +75,18 @@ class PedidoItem
     public function setPedido(?Pedido $pedido): self
     {
         $this->pedido = $pedido;
+
+        return $this;
+    }
+
+    public function getPreco(): ?float
+    {
+        return $this->preco;
+    }
+
+    public function setPreco(float $preco): self
+    {
+        $this->preco = $preco;
 
         return $this;
     }

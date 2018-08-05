@@ -2,11 +2,28 @@
 
     {# form_row would write extra markup, so we directly write the collection #}
     <tr {{ block('widget_attributes') }}>
+      <td style="width: 100px">{{ form_widget(form.codigo) }}</td>
       <td>{{ form_widget(form.produto) }}</td>
-      <td>{{ form_widget(form.quantidade) }}</td>
+      <td class="preco form-calc form-cost" style="text-align: center"></td>
+      <td class="form-calc form-qty" style="width: 200px">
+        <div class="input-group">
+          <span class="input-group-btn">
+            <button class="btn btn-outline-primary menos" type="button">
+                <i class="fa fa-minus"></i>
+            </button>
+          </span>
+            {{ form_widget(form.quantidade, {'attr': {'style': 'text-align: center'}}) }}
+          <span class="input-group-btn">
+            <button class="btn btn-outline-primary mais" type="button">
+                <i class="fa fa-plus"></i>
+            </button>
+          </span>
+        </div>
+      </td>
+      <td class="form-line" style="text-align: center"></td>
       <td class="text-center">
-        <a href="#" class="collection-remove btn btn-default" title="Delete element"><i class="fas fa-trash"></i></a>
         <a href="#" class="collection-add btn btn-default" title="Add element"><i class="fas fa-plus"></i></a>
+        <a href="#" class="collection-remove btn btn-default" title="Delete element"><i class="fas fa-trash"></i></a>
       </td>
     </tr>
 
@@ -35,8 +52,11 @@
         {# Don't forget to add the collection attributes in your markup #}
         <table {{ block('widget_attributes') }}>
             <thead>
+                <th style="text-align: center">Cód</th>
                 <th>Produto</th>
-                <th>Quantidade</th>
+                <th style="text-align: center">Preço</th>
+                <th style="text-align: center">Quantidade</th>
+                <th style="text-align: center">Soma</th>
                 <th>&nbsp;</th>
             </thead>
             <tbody>
@@ -50,6 +70,11 @@
                 {% endfor %}
 
             </tbody>
+            <tfoot>
+              <th colspan="4" style="text-align: right">Valor Total</th>
+              <th id="total"></th>
+              <th></th>
+            </tfoot>
         </table>
     </fieldset>
 

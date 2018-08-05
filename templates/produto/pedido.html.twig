@@ -4,32 +4,216 @@
 
 {% block body %}
 
-	{% form_theme form 'produto/prototype.html.twig' %}
+    {% form_theme form 'produto/prototype.html.twig' %}
 
-	{{ form(form) }}
+	{{ form_start(form) }}
 
+    {{ form_row(form.vendedor) }}
+
+    {# <div class="row">
+        <div class="col-sm-12">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>Cód</th>
+                            <th>Descrição</th>
+                            <th>Preço</th>
+                            <th>Quantidade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{ form_widget(form.codigo) }}</td>
+                            <td>{{ form_widget(form.produto) }}</td>
+                            <td id="preco"></td>
+                            <td>{{ form_widget(form.quantidade) }}</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="3" style="text-align: right">Valor Total</th>
+                            <th id="total"></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div> #}
 	{{ form_end(form) }}
+
+    <button id="valortotal">Valor Total</button>
 
 {% endblock %}
 
 {% block javascript %}
+
+
     <script src="{{ asset('js/jquery.collection.js') }}"></script>
+    <script>
+        $(document).ready(function(){
+            $(".pedido_pedidoItens-collection-action").trigger('click'); 
+            $(".pedido_pedidoItens-collection-add").trigger('click');
+            $(".pedido_pedidoItens-collection-add").trigger('click');
 
-    <script type="text/javascript">
-        $('.my-selector').collection();
+
+            $('.mais').on('click', function(){
+                var tr = $(this).closest('tr');
+                var oldVal = tr.find("[name$='[quantidade]']").val();
+                var newVal = (parseInt(tr.find("[name$='[quantidade]']").val(),10) +1);
+                tr.find("[name$='[quantidade]']").val(newVal);
+
+                var parent = $(this).closest("tr");
+                parent.find(".form-line").text( (parent.find("[name$='[quantidade]']").val() * parent.find(".form-cost").text()).toFixed(2) );
+                console.log()
+                var total = 0;
+                $(".form-line").each(function(){
+                    total += parseFloat($(this).text()||0);
+                });
+                $("#total").text(total.toFixed(2));
+            });
+
+            $('.menos').on('click', function(){
+                var tr = $(this).closest('tr');
+                var oldVal = tr.find("[name$='[quantidade]']").val()
+                if (oldVal > 1) {
+                    var newVal = (parseInt(tr.find("[name$='[quantidade]']").val(),10) -1);
+                } else {
+                    alert("Quantidade mínima: 1");
+                    newVal = 1;
+                }
+                tr.find("[name$='[quantidade]']").val(newVal);
+
+                var parent = $(this).closest("tr");
+                parent.find(".form-line").text( (parent.find("[name$='[quantidade]']").val() * parent.find(".form-cost").text()).toFixed(2) );
+                console.log()
+                var total = 0;
+                $(".form-line").each(function(){
+                    total += parseFloat($(this).text()||0);
+                });
+                $("#total").text(total.toFixed(2));
+            });
+        });
     </script>
-    <script type="text/javascript">
 
-        $('.discount-collection').collection({
+    <script>
+        $(document).ready(function() {
+            $("table").on("keyup", ".form-calc", function() {
+                var parent = $(this).closest("tr");
+                parent.find(".form-line").text( (parent.find("[name$='[quantidade]']").val() * parent.find(".form-cost").text()).toFixed(2) );
+                console.log()
+                var total = 0;
+                $(".form-line").each(function(){
+                    total += parseFloat($(this).text()||0);
+                });
+                $("#total").text(total.toFixed(2));
+            });
+        });
+    </script>
+    <script>
+        $('#valortotal').click(function () {
+
+            $('tr').each(function(){
+
+                var sum = 0;
+
+                $('tr').find('.preco').each(function () {
+                    var preco = $(this).text();
+                    var quantidade = $('tr').find("[name$='[quantidade]']").val();
+                    if (!isNaN(preco) && preco.length !== 0) {
+                        sum = parseFloat(preco * quantidade);
+                    }
+                });
+            $('#total').html(sum);
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            $("table").on("change", "input[name$='[codigo]']", function(){
+               var val = $(this).val();
+               var tr = $(this).closest('tr');
+               tr.find("input[name$='[produto]']").val('...')
+               tr.find(".preco").html('...');
+               $.ajax({
+                    type: "POST",
+                    dataType: 'json',
+                    url: "{{ url('lancamento_pedidos_consulta-codigo') }}?produto_cod=" + val,
+                    success: function(data) {
+
+                        tr.find("[name$='[quantidade]']").val('0');
+                        // $('#total').html('');
+                        tr.find("input[name$='[produto]']").val(data.nome);
+                        tr.find(".preco").html('');
+                        tr.find(".preco").append(data.preco);
+                        console.log(data.nome);
+                        // var preco = $('#preco').text();
+                        // var quantidade = $('#pedido_quantidade').val();
+                        // var precoTotal = preco * quantidade;
+                        // $('#total').append(precoTotal);
+                    },
+                    error: function() {
+                        tr.find("input[name$='[produto]']").val('Produto não encontrado');
+                        tr.find(".preco").html('');
+                        tr.find("[name$='[quantidade]']").val('');
+                    }
+                });
+                return false;
+            });
+        });
+
+
+
+    //     $(document).ready(function () {
+    //         // $("table").on("change", "input[name='pedido_codigo']", function(){
+    //         $("#pedido_codigo").change(function(){
+    //            var val = $(this).val();
+    //            $.ajax({
+    //                 type: "POST",
+    //                 dataType: 'json',
+    //                 url: "{{ url('lancamento_pedidos_consulta-codigo') }}?produto_cod=" + val,
+    //                 success: function(data) {
+    //                     $('#pedido_produto').val('');
+    //                     $('#pedido_produto').val(data.nome);
+    //                     $('#preco').html('');
+    //                     $('#preco').append(data.preco);
+    //                     console.log(data.nome);
+    //                 },
+    //                 error: function() {
+    //                     $('#pedido_produto').val('Produto não encontrado');
+    //                     $('#preco').html('');
+    //                 }
+    //             });
+    //             return false;
+    //         });
+
+    //         $("#pedido_quantidade").change(function(){
+    //            var val = $(this).val();
+    //            $.ajax({
+    //                 type: "POST",
+    //                 dataType: 'json',
+    //                 url: "{{ url('lancamento_pedidos_consulta-codigo') }}?produto_cod=" + val,
+    //                 success: function(data) {
+    //                     $('#pedido_produto').val(data.nome);
+    //                     $('#preco').append(data.preco);
+    //                     console.log(data.nome);
+    //                 }
+    //             });
+    //             return false;
+    //         });
+
+
+    //     });
+    </script>
+    <script>
+         $('.pedido-collection').collection({
             allow_duplicate: false,
             allow_up: false,
             allow_down: false,
             add: '<a href="#" class="btn btn-default" title="Add element"><i class="fas fa-plus"></i></a>',
-
-            // here is the magic!
+             // here is the magic!
             elements_selector: 'tr.item',
             elements_parent_selector: '%id% tbody'
         });
-
-    </script>
+     </script>
 {% endblock %}

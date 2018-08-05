@@ -25,6 +25,11 @@ class Pedido
     private $vendedor;
 
     /**
+     * @ORM\Column(type="float")
+     */
+    private $valor;
+
+    /**
      * @ORM\OneToMany(targetEntity="App\Entity\PedidoItem", mappedBy="pedido", cascade={"persist"})
      */
     private $pedidoItens;
@@ -78,6 +83,18 @@ class Pedido
                 $pedidoIten->setPedido(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getValor(): ?float
+    {
+        return $this->valor;
+    }
+
+    public function setValor(float $valor): self
+    {
+        $this->valor = $valor;
 
         return $this;
     }
