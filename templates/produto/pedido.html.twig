@@ -42,12 +42,44 @@
     </div> #}
 	{{ form_end(form) }}
 
-    <button id="valortotal">Valor Total</button>
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <table class="table table-hover table-bordered">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Produto</th>
+                        <th>Preço</th>
+                        <th>&nbsp;</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody">
+
+                    <tr id="rows">
+
+                    </tr>
+                </tbody>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
 {% endblock %}
 
 {% block javascript %}
-
 
     <script src="{{ asset('js/jquery.collection.js') }}"></script>
     <script>
@@ -93,11 +125,8 @@
                 });
                 $("#total").text(total.toFixed(2));
             });
-        });
-    </script>
 
-    <script>
-        $(document).ready(function() {
+
             $("table").on("keyup", ".form-calc", function() {
                 var parent = $(this).closest("tr");
                 parent.find(".form-line").text( (parent.find("[name$='[quantidade]']").val() * parent.find(".form-cost").text()).toFixed(2) );
@@ -110,27 +139,11 @@
             });
         });
     </script>
-    <script>
-        $('#valortotal').click(function () {
 
-            $('tr').each(function(){
-
-                var sum = 0;
-
-                $('tr').find('.preco').each(function () {
-                    var preco = $(this).text();
-                    var quantidade = $('tr').find("[name$='[quantidade]']").val();
-                    if (!isNaN(preco) && preco.length !== 0) {
-                        sum = parseFloat(preco * quantidade);
-                    }
-                });
-            $('#total').html(sum);
-            });
-        });
-    </script>
     <script>
         $(document).ready(function () {
-            $("table").on("change", "input[name$='[codigo]']", function(){
+            // usar blur nessa função quando arrumar o problema do .procuraproduto, e dar focus e blur quando passar o valor pro input na outra função pra gerar o query ajax
+            $("table").on("blur", "input[name$='[codigo]']", function(){
                var val = $(this).val();
                var tr = $(this).closest('tr');
                tr.find("input[name$='[produto]']").val('...')
@@ -159,6 +172,46 @@
                     }
                 });
                 return false;
+            });
+
+            $('table').on("click", ".procuraproduto", function(){
+                $('tr.selected').removeClass('selected');
+                console.log($(this).closest('tr'));
+                $(this).closest('tr').addClass('selected');
+                console.log($(this).closest('tr'));
+                var trpai = $(this).closest('tr');
+
+                // console.log('aaa');
+               $.ajax({
+                    type: "POST",
+                    dataType: 'json',
+                    url: "{{ url('lancamento_pedidos_consulta-produtos') }}",
+                    success: function(data) {
+                        console.log(data);
+                        $('#exampleModal').modal('show');
+                        $('#tbody').html('');
+
+                        $.each(data, function(index, value) {
+                            var result = data[index];
+                            $('#tbody').append('<tr style="cursor: pointer"><td>' + result[0] + '</td>' + '<td>' + result[1] + '</td>' + '<td>' + result[2] + '</td> + <td><button type="button" id="selecionaproduto">Add</td></tr>' );
+                        });
+                    },
+                    error: function() {
+                    }
+                });
+
+                $('table').on("click", "#selecionaproduto", function() {
+                        var tr = $(this).closest('tr');
+                        var codigo = tr.find('td:eq(0)').text();
+                        $('#exampleModal').modal('hide');
+                        $('tr.selected').find("input[name$='[codigo]']").val(codigo);
+                        $("tr.selected input[name$='[codigo]']").blur();
+                        $("tr.selected input[name$='[quantidade]']").focus();
+                        $('tr.selected').removeClass('selected');
+                        console.log($('tr.selected').find("input[name$='[codigo]']").focus());
+                });
+
+                // return false;
             });
         });
 

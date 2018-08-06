@@ -3,7 +3,16 @@
     {# form_row would write extra markup, so we directly write the collection #}
     <tr {{ block('widget_attributes') }}>
       <td style="width: 100px">{{ form_widget(form.codigo) }}</td>
-      <td>{{ form_widget(form.produto) }}</td>
+      <td>
+        <div class="input-group">
+          {{ form_widget(form.produto) }}
+        <span class="input-group-btn">
+            <button class="btn btn-outline-primary procuraproduto" type="button">
+              <i class="fa fa-search"></i>
+            </button>
+        </span>
+        </div>
+      </td>
       <td class="preco form-calc form-cost" style="text-align: center"></td>
       <td class="form-calc form-qty" style="width: 200px">
         <div class="input-group">
@@ -72,7 +81,7 @@
             </tbody>
             <tfoot>
               <th colspan="4" style="text-align: right">Valor Total</th>
-              <th id="total"></th>
+              <th id="total" style="text-align: center"></th>
               <th></th>
             </tfoot>
         </table>

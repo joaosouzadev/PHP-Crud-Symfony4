@@ -233,4 +233,43 @@ class ProdutoController extends AbstractController {
 
         return new Response($jsonContent);
 	}
+
+	/**
+	* @Route("/pedidos/consulta_produtos", name="lancamento_pedidos_consulta-produtos")
+	*/
+	public function PedidoConsultaProdutos(Request $request) {
+		if (! $request->isXmlHttpRequest()) {
+            throw new NotFoundHttpException();
+        }
+
+        $session = $this->get('session');
+    	$empresa = $session->get('empresa');
+
+        $encoders = array(new XmlEncoder(), new JsonEncoder());
+        $normalizer = new ObjectNormalizer();
+        $normalizer->setCircularReferenceLimit(1);
+        // Add Circular reference handler
+        $normalizer->setCircularReferenceHandler(function ($object) {
+            return $object->getId();
+        });
+        $normalizers = array($normalizer);
+
+        $serializer = new Serializer($normalizers, $encoders);
+        
+        // Pega o request do Ajax
+        // $cod = $request->query->get('produto_cod');
+
+        // Seta o Repositório e Procura pelo Código vindo do Ajax
+        $repo = $this->getDoctrine()->getRepository(Produto::class);
+        $produtos = $repo->findByEmpresa($empresa);
+
+        foreach ($produtos as $produto){
+            $output[]=array($produto->getCodigo(),$produto->getNome(), $produto->getPreco());
+        }
+
+        // Passa o content pro JSON
+        $jsonContent = $serializer->serialize($output, 'json');
+
+        return new Response($jsonContent);
+	}
 }
